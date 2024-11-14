@@ -46,7 +46,7 @@ pip install -r requirements.txt
 After setting up, you can start the Streamlit application:
 
 ```bash
-streamlit run app.py
+streamlit run st_app.py
 ```
 
 This will start a local server, and you can access the app in your web browser by navigating to:
@@ -55,14 +55,6 @@ This will start a local server, and you can access the app in your web browser b
 http://localhost:8501
 ```
 
-## Usage
-
-1. Open a terminal and activate the virtual environment if not already activated.
-2. Run the Streamlit app by using the command:
-   ```bash
-   streamlit run app.py
-   ```
----
 
 
 
