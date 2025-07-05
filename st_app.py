@@ -11,7 +11,7 @@ import numpy as np
 
 from streamlit_folium import st_folium
 st.set_page_config(layout='wide')
-st.title("Dynamic Bharat - Changes in Land Use over time")
+st.title("Dynamic Bharat - Changes in Land Use over Time")
 
 
 c1,c2 = st.columns([0.3, 0.7])
@@ -55,11 +55,16 @@ except Exception as e:
    print(e)
 
 
+# Cache the results to avoid reloading
+@st.cache_data
+def get_cached_results(topLeft, bottomRight):
+    return gr.get_results(topLeft, bottomRight)
+
 r = None
        
 try:
-   if r == None:
-      r = gr.get_results(topLeft, bottomRight)
+   if 'coords' in locals():
+      r = get_cached_results(topLeft, bottomRight)
       print('got the results')
    else:
         pass 
@@ -69,13 +74,13 @@ except Exception as e:
 with c2:  
         
    if r is not None:   
-      option = st.radio("Select the class", options=["buildings", "roads", "trees", 'water'] ) 
+      option = st.radio("Select the class", options=["Buildings", "Roads", "Vegetation Cover", 'Water Bodies'] ) 
          
-      if option == 'buildings':
+      if option == 'Buildings':
             results = r[0]
-      elif option == 'roads':
+      elif option == 'Roads':
             results = r[1]
-      elif option == 'trees':
+      elif option == 'Vegetation Cover':
             results = r[2]
       else:
             results = r[3]
@@ -92,77 +97,104 @@ with c2:
       area_1 = count_1_xarr1*1.14
       area_2 = count_1_xarr2*1.14
    
+      # Get all results for all charts
+      buildings_2020 = r[0]['count_1_xarr1'] * 1.14
+      buildings_2023 = r[0]['count_1_xarr2'] * 1.14
+      roads_2020 = r[1]['count_1_xarr1'] * 1.14
+      roads_2023 = r[1]['count_1_xarr2'] * 1.14
+      vegetation_2020 = r[2]['count_1_xarr1'] * 1.14
+      vegetation_2023 = r[2]['count_1_xarr2'] * 1.14
+      water_2020 = r[3]['count_1_xarr1'] * 1.14
+      water_2023 = r[3]['count_1_xarr2'] * 1.14
 
-
-
-      labels = ["2020", "2023"]
-      values = [count_1_xarr1, count_1_xarr2]
-      co1, co2 = st.columns(2)
-      # Create a bar chart with Plotly for count values only
-
-      fig = go.Figure()
-
-      # Add bar chart
-      fig.add_trace(go.Bar(
-         x=labels,
-         y=values,
-         name="Counts",
-         text=values,
-         textposition="auto"
-      ))
-
-      # Add line chart
-      fig.add_trace(go.Scatter(
-         x=labels,
-         y=values,
-         mode='lines+markers',
-         name="Count Trend",
-         line=dict(color='royalblue', width=2),
-         marker=dict(size=8)
-      ))
-
-      # Customize layout
-      fig.update_layout(
-         title="Counts with Bar and Line Chart",
-         xaxis_title="Variables",
-         yaxis_title="Values",
-         template="plotly_white"
-      )
-
-      # Display the plot in Streamlit
-      co1.plotly_chart(fig)
-
-
-      # Create labels and values for the pie chart
-      area_labels = ["2020", "2023"]
-      area_values = [area_1, area_2]
-
-      # Create a pie chart for area values
-      fig_pie = go.Figure(data=[go.Pie(labels=area_labels, values=area_values, hole=0.3)])
-
-      # Customize layout for pie chart
-      fig_pie.update_layout(
-         title="Area Distribution",
-         template="plotly_white"
-      )
-
-      # Display the pie chart in Streamlit
-      co2.plotly_chart(fig_pie)
-
-      annotations = [
-      f"abs_change_1: {abs_change_1}",
-      f"pct_change_1: {pct_change_1}",
-      f"bs_change_0: {bs_change_0}",
-      f"pct_change_0: {pct_change_0}"
-      ]
-
-   
-
-      # Display the plot in Streamlit
+      # Create a 2x2 grid for charts
+      chart_col1, chart_col2 = st.columns(2)
       
-      st.write("### Key Changes")
-      col1, col2, col3 = st.columns(3)
-      col1.metric(label="Absolute Change 1", value=f"{abs_change_1/10000}sq.km")
-      col2.metric(label="Percentage Change 1", value=f"{pct_change_1:2f}%")
-      col3.metric(label="Percentage Change 0", value=f"{pct_change_0:2f}%")  
+      with chart_col1:
+          # Bar chart for selected option
+          labels = ["2020", "2023"]
+          values = [area_1, area_2]
 
+          fig = go.Figure()
+
+          # Add bar chart
+          fig.add_trace(go.Bar(
+             x=labels,
+             y=values,
+             name="Area",
+             textposition="auto"
+          ))
+
+          # Add line chart
+          fig.add_trace(go.Scatter(
+             x=labels,
+             y=values,
+             mode='lines+markers',
+             name="Area Trend",
+             line=dict(color='royalblue', width=2),
+             marker=dict(size=8)
+          ))
+
+          # Customize layout with smaller height
+          fig.update_layout(
+             title=f"{option} - Area Change",
+             xaxis_title="Year",
+             yaxis_title="Area (sq.m)",
+             template="plotly_white",
+             height=400  # Reduced height
+          )
+
+          st.plotly_chart(fig, use_container_width=True)
+
+          
+          
+          # Determine color and status based on change
+          if abs_change_1 < 0:
+              change_color = "red"
+              change_status = "lost"
+          else:
+              change_color = "green"
+              change_status = "gained"
+          
+          st.markdown(f"**Change in Area:** <span style='color: {change_color}; font-size:20px'>{abs(abs_change_1/10000):.2f} sq.km ({change_status})</span>", unsafe_allow_html=True)
+
+      with chart_col2:
+          # Create pie chart for 2020
+          fig_pie_2020 = go.Figure(data=[go.Pie(
+             labels=['Buildings', 'Roads', 'Vegetation Cover', 'Water Bodies'], 
+             values=[buildings_2020, roads_2020, vegetation_2020, water_2020], 
+             hole=0.3,
+             marker=dict(colors=['red', 'black', 'green', 'blue'])
+          )])
+
+          fig_pie_2020.update_layout(
+             title="Land Use Composition - 2020",
+             template="plotly_white",
+             height=400  # Reduced height
+          )
+
+          st.plotly_chart(fig_pie_2020, use_container_width=True)
+
+      # Second row for the 2023 pie chart
+      chart_col3, chart_col4 = st.columns(2)
+      
+      with chart_col3:
+          # Empty space to maintain alignment
+          st.empty()
+          
+      with chart_col4:
+          # Create pie chart for 2023
+          fig_pie_2023 = go.Figure(data=[go.Pie(
+             labels=['Buildings', 'Roads', 'Vegetation Cover', 'Water Bodies'], 
+             values=[buildings_2023, roads_2023, vegetation_2023, water_2023], 
+             hole=0.3,
+             marker=dict(colors=['red', 'black', 'green', 'blue'])
+          )])
+
+          fig_pie_2023.update_layout(
+             title="Land Use Composition - 2023",
+             template="plotly_white",
+             height=400  # Reduced height
+          )
+
+          st.plotly_chart(fig_pie_2023, use_container_width=True)
