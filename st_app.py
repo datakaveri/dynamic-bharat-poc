@@ -1,7 +1,6 @@
 import folium
 import streamlit as st
 from folium.plugins import Draw
-import xarray as xr
 import get_results as gr
 import warnings
 warnings.filterwarnings('ignore')
