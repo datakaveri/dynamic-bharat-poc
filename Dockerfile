@@ -38,4 +38,4 @@ COPY . .
 EXPOSE 8501
 
 # Launch the app
-ENTRYPOINT ["streamlit", "run", "st_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "st_app.py", "--server.port=8501", "--server.address=0.0.0.0", "server.baseUrlPath=/dynamic-bharat"]
