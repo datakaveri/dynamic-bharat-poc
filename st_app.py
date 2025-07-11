@@ -22,8 +22,10 @@ locations = [
 [17.33003726964443, 78.28945900216388],
     
 ]
+
+
 with c1:
-   m = folium.Map(location=[17.365548014635493, 79.26549911841008], zoom_start=13)
+   m = folium.Map(location=[17.4016, 78.3762], zoom_start=18)
    folium.Polygon(
     locations=locations,
     smooth_factor=2,
@@ -93,18 +95,18 @@ with c2:
       bs_change_0 = results['absolute_change_0']
       pct_change_0 = results['percentage_change_0']
 
-      area_1 = count_1_xarr1*1.14
-      area_2 = count_1_xarr2*1.14
+      area_1 = (count_1_xarr1*1.12*1.12)/1000000
+      area_2 = (count_1_xarr2*1.12*1.12)/1000000
    
       # Get all results for all charts
-      buildings_2020 = r[0]['count_1_xarr1'] * 1.14
-      buildings_2023 = r[0]['count_1_xarr2'] * 1.14
-      roads_2020 = r[1]['count_1_xarr1'] * 1.14
-      roads_2023 = r[1]['count_1_xarr2'] * 1.14
-      vegetation_2020 = r[2]['count_1_xarr1'] * 1.14
-      vegetation_2023 = r[2]['count_1_xarr2'] * 1.14
-      water_2020 = r[3]['count_1_xarr1'] * 1.14
-      water_2023 = r[3]['count_1_xarr2'] * 1.14
+      buildings_2020 = (r[0]['count_1_xarr1'] * 1.12 *1.12)/1000000
+      buildings_2023 = (r[0]['count_1_xarr2'] * 1.12 *1.12)/1000000
+      roads_2020 = (r[1]['count_1_xarr1'] * 1.12 *1.12)/1000000
+      roads_2023 = (r[1]['count_1_xarr2'] * 1.12 *1.12)/1000000
+      vegetation_2020 = (r[2]['count_1_xarr1'] * 1.12 *1.12)/1000000
+      vegetation_2023 = (r[2]['count_1_xarr2'] * 1.12 *1.12)/1000000
+      water_2020 = (r[3]['count_1_xarr1'] * 1.12 *1.12)/1000000
+      water_2023 = (r[3]['count_1_xarr2'] * 1.12 *1.12)/1000000
 
       # Create a 2x2 grid for charts
       chart_col1, chart_col2 = st.columns(2)
@@ -138,7 +140,7 @@ with c2:
           fig.update_layout(
              title=f"{option} - Area Change",
              xaxis_title="Year",
-             yaxis_title="Area (sq.m)",
+             yaxis_title="Area (sq.km)",
              template="plotly_white",
              height=400  # Reduced height
           )
