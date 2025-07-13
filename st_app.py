@@ -116,6 +116,16 @@ with c2:
           labels = ["2020", "2023"]
           values = [area_1, area_2]
 
+          # Define colors for each land use class
+          color_map = {
+              "Buildings": "red",
+              "Roads": "black", 
+              "Vegetation Cover": "green",
+              "Water Bodies": "blue"
+          }
+          
+          bar_color = color_map.get(option, "royalblue")  # Default color if option not found
+
           fig = go.Figure()
 
           # Add bar chart
@@ -123,7 +133,8 @@ with c2:
              x=labels,
              y=values,
              name="Area",
-             textposition="auto"
+             textposition="auto",
+             marker_color=bar_color
           ))
 
           # Add line chart
@@ -157,7 +168,7 @@ with c2:
               change_color = "green"
               change_status = "gained"
           
-          st.markdown(f"**Change in Area:** <span style='color: {change_color}; font-size:20px'>{abs(abs_change_1/10000):.2f} sq.km ({change_status})</span>", unsafe_allow_html=True)
+          st.markdown(f"**Change in Area:** <span style='color: {change_color}; font-size:20px'>{abs(abs_change_1 * 1.12 *1.12)/1000000:.5f} sq.km ({change_status})</span>", unsafe_allow_html=True)
 
       with chart_col2:
           # Create pie chart for 2020
